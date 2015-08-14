@@ -1,12 +1,29 @@
+require "matrix"
+
 class Board
 	attr_accessor :tiles
 	@@block = "| |"
 	@@blocks = []
+	@@hash = Hash.new(0)
 	def initialize
 		#Creates an array of blocks to be used in the game
 		9.times do 
 			@@blocks << @@block
 		end
+		counter_x = 0
+		counter_y = 0
+		vector = Vector[counter_x,counter_y]
+		for i in @@blocks
+			@@hash[vector] = "| |"
+			counter_x += 1
+			if(counter_x == 3)
+				counter_x = 0
+				counter_y += 1
+			end
+			vector = [counter_x,counter_y]
+		end
+		#print(@@hash)
+
 	end
 
 	public 
@@ -23,8 +40,8 @@ class Board
 				end
 			end
 		end
-		for item in @@blocks
-			print("| " + item + " |")
+		for x,y in @@hash
+			print(y.to_s)
 			counter += 1
 			if(counter == 3)
 				print("\n")
@@ -35,30 +52,61 @@ class Board
 
 	public
 	def Board.input
-		returnVal = gets.chomp
-		if(returnVal.casecmp("x") == 0 || returnVal.casecmp("o") == 0)
-			return returnVal
+		pos = gets.chomp.to_i
+		if(pos <= 2 && pos >= 0)
+			return pos
 		else
-			until returnVal.casecmp("x") == 0 || returnVal.casecmp("o") == 0
-				print("Please enter 'x' or 'o': ")
-				returnVal = gets.chomp
+			until pos <= 2 && pos >= 0
+				print("Please enter a value between 0 and 2 (0,1,2): ")
+				pos = gets.chomp.to_i
 			end
-			return returnVal
+			return pos
 		end
 	end
 		
 	public
 	def play
-		@@player = ""
-		@@blocks.clear
-		9.times do
+		@@x_val = 0
+		@@y_val = 0
+		@@vect = Vector[@@x_val,@@y_val]
+		@@counter = 0
+
+		for x,y in @@hash
 			print("\n")
 			Board.show
 			print("\n")
-			print("(x or o): ")
-			@@player = Board.input
-			@@blocks << @@player
+			if(@@counter == 0)
+				print("Player 1 please enter your x value(range 0-2): ")
+				@@x_val = Board.input
+				print("Player 1 please enter your y value(range 0-2): ")
+				@@y_val = Board.input
+				@@vect = Vector[@@x_val, @@y_val]
+				for x,y in @@hash
+					#checks if @@vect is equal to the vector stored in the hash
+					if @@vect.to_a.eql?(x.to_a)
+						@@hash[x] = "|x|"
+					end
+				end
+				@@counter += 1
+			elsif(@@counter == 1)
+				print("Player 2 please enter your x value(range 0-2): ")
+				@@x_val = Board.input
+				print("Player 2 please enter your y value(range 0-2): ")
+				@@y_val = Board.input
+				@@vect = Vector[@@x_val, @@y_val]
+				for x,y in @@hash
+					#checks if @@vect is equal to the vector stored in the hash
+					if @@vect.to_a.eql?(x.to_a)
+						@@hash[x] = "|o|"
+					end
+				end
+				@@counter -= 1
+			end
 		end
+
+		#Displays board at end of the game
+		print("\n")
+		Board.show
 	end
 end
 
