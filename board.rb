@@ -1,33 +1,40 @@
 require "matrix"
 
 class Board
-	attr_accessor :tiles
 	@@block = "| |"
 	@@blocks = []
 	@@hash = Hash.new(0)
+	@@vector = Vector[0,0]
+	@@vals = @@hash.values
+
 	def initialize
 		#Creates an array of blocks to be used in the game
 		9.times do 
 			@@blocks << @@block
 		end
+		Board.setHash
+		#print(@@hash)
+	end
+
+	public 
+	def Board.setHash
 		counter_x = 0
 		counter_y = 0
-		vector = Vector[counter_x,counter_y]
+		@@vector = Vector[counter_x,counter_y]
 		for i in @@blocks
-			@@hash[vector] = "| |"
+			@@hash[@@vector] = "| |"
 			counter_x += 1
 			if(counter_x == 3)
 				counter_x = 0
 				counter_y += 1
 			end
-			vector = [counter_x,counter_y]
+			@@vector = [counter_x,counter_y]
 		end
-		#print(@@hash)
-
 	end
 
 	public 
 	def Board.show
+		print("\n")
 		counter = 0
 		if(@@blocks.length == 0)
 			temp = 0
@@ -63,18 +70,45 @@ class Board
 			return pos
 		end
 	end
-		
+
+	public
+	def Board.win_condition(x,y,z)
+		if @@vals[x] == "|x|" && @@vals[y] == "|x|" && @@vals[z] == "|x|"
+			return 1
+		elsif @@vals[x] == "|o|" && @@vals[y] == "|o|" && @@vals[z] == "|o|"
+			return 2
+		else return false
+		end
+	end
+	# Method to check for a winner in the game
+	public	
+	def Board.win
+		x_val = "|x|"
+		o_val = "|o|"
+
+		if Board.win_condition(0,1,2) == 1 || Board.win_condition(3,4,5) == 1 || Board.win_condition(6,7,8) == 1 || Board.win_condition(0,3,6) == 1 ||
+			Board.win_condition(1,4,7) == 1 || Board.win_condition(2,5,8) == 1 || Board.win_condition(2,4,6) == 1 || Board.win_condition(0,4,8) == 1
+			return 1
+		elsif Board.win_condition(0,1,2) == 2 || Board.win_condition(3,4,5) == 2 || Board.win_condition(6,7,8) == 2 || Board.win_condition(0,3,6) == 2 ||
+			Board.win_condition(1,4,7) == 2 || Board.win_condition(2,5,8) == 2 || Board.win_condition(2,4,6) == 2 || Board.win_condition(0,4,8) == 2
+			return 2
+		else return false
+		end
+	end
+
 	public
 	def play
 		@@x_val = 0
 		@@y_val = 0
 		@@vect = Vector[@@x_val,@@y_val]
 		@@counter = 0
+		@@replay = ""
 
 		for x,y in @@hash
 			print("\n")
 			Board.show
 			print("\n")
+			#Player 1 (x)
 			if(@@counter == 0)
 				print("Player 1 please enter your x value(range 0-2): ")
 				@@x_val = Board.input
@@ -88,6 +122,7 @@ class Board
 					end
 				end
 				@@counter += 1
+			#Player 2 (y)
 			elsif(@@counter == 1)
 				print("Player 2 please enter your x value(range 0-2): ")
 				@@x_val = Board.input
@@ -101,6 +136,30 @@ class Board
 					end
 				end
 				@@counter -= 1
+			end
+			@@vals = @@hash.values
+
+			#Checks for a winner using Board.win
+			if(Board.win == 1)
+				Board.show
+				print("\n\nGame is over. Player 1 wins." + "Play again?(y/n): ")
+				@@replay = gets.chomp
+				if(@@replay == "y")
+					Board.setHash
+			    	redo
+				else
+					break
+				end
+			elsif(Board.win == 2)
+				Board.show
+				print("\n\nGame is over. Player 2 wins." + "Play again?(y/n): ")
+				@@replay = gets.chomp
+				if(@@replay == "y")
+					Board.setHash
+			    	redo
+				else
+					break
+				end
 			end
 		end
 
